@@ -1,0 +1,32 @@
+{
+  "name": "simplewebserver",
+  "version": "1.0.0",
+  "description": "",
+  "main": "Server.ts",
+  "dependencies": {
+    "ts-node": "^10.4.0",
+    "typescript": "^4.5.5"
+  },
+  "devDependencies": {
+    "@types/node": "^17.0.13",
+    "@types/ws": "^8.2.2",
+    "fs": "0.0.1-security",
+    "https": "^1.0.0",
+    "path": "^0.12.7",
+    "ts-command-line-args": "^2.2.1",
+    "ws": "^8.4.2"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/umetaman/SimpleWebServer.git"
+  },
+  "author": "umetaman",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/umetaman/SimpleWebServer/issues"
+  },
+  "homepage": "https://github.com/umetaman/SimpleWebServer#readme"
+}
