@@ -4,6 +4,7 @@ import * as http from 'http'
 import * as path from 'path'
 import * as ws from 'ws'
 import { WatchDirectoryFlags } from 'typescript'
+import { ConnectTCPCommand, SendTCPCommand } from './ICommand'
 
 const headers: any = {
     '.js': { 'Content-Type': 'text/javascript' },
@@ -92,6 +93,29 @@ logServer(
     `Port: ${config.webServerPortNumber}, Directory: ${config.htdocsDirectory}`
 )
 
+// ==============================
+// TCP Client
+// ==============================
+
+import * as net from "net"
+
+let client: net.Socket | null = null
+
+function createTcpClient(ip: string, port: number) {
+    closeTcpClient()
+    
+    return net.connect(port, ip, () => {
+        console.log("[TCP] Connect to server.")
+    })
+}
+
+function closeTcpClient() {
+    if(client !== null){
+        client.destroy()
+    }
+}
+
+
 // ==================
 // WebSocket
 // ==================
@@ -115,8 +139,39 @@ function onMessage(data: ws.RawData, isBinary: boolean): void {
         const json = JSON.parse(data.toString())
         logWs(json)
         broadcastMessageToClients(json)
+        if(json.command) {
+            logWs(`Received Command => ${json.command}`)
+            onReceiveCommand(json)
+        }
+    
     } catch (e) {
         console.error(e)
+    }
+}
+
+function onReceiveCommand(commandObj: any){
+    if(!commandObj.command) {
+        throw new Error("Command key not found.")
+    }
+
+    switch(commandObj.command){
+        case "ConnectTCP":
+            const connectCommand = commandObj as ConnectTCPCommand
+            client = createTcpClient(connectCommand.ip, connectCommand.port)
+            break
+        case "SendTCP":
+            const sendCommand = commandObj as SendTCPCommand
+            try {
+                client?.write(JSON.stringify(sendCommand.data))
+                console.log(JSON.stringify(sendCommand.data))
+            }
+            catch(e){
+                console.error(e)
+            }
+            break
+        case "DestroyTCP":
+            closeTcpClient()
+            break
     }
 }
 
