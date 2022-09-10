@@ -162,8 +162,15 @@ function onReceiveCommand(commandObj: any){
         case "SendTCP":
             const sendCommand = commandObj as SendTCPCommand
             try {
-                client?.write(JSON.stringify(sendCommand.data))
-                console.log(JSON.stringify(sendCommand.data))
+                const jsonStr = JSON.stringify(sendCommand.data)
+                
+                const head = new Uint8Array(4)
+                const dataView = new DataView(head.buffer)
+                dataView.setUint32(0, jsonStr.length)
+                
+                client?.write(head)
+                client?.write(jsonStr)
+                console.log(jsonStr)
             }
             catch(e){
                 console.error(e)
