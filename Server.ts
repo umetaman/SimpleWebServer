@@ -116,7 +116,7 @@ function createTcpClient(ip: string, port: number) {
     closeTcpClient()
     
     return net.connect(port, ip, () => {
-        console.log("[TCP] Connect to server.")
+        broadcastMessageToClients({ stdout: `Connect to ${ip}:${port}` })
     })
 }
 
@@ -197,6 +197,7 @@ function onReceiveCommand(commandObj: any){
             break
         case "DestroyTCP":
             closeTcpClient()
+            broadcastMessageToClients({ stdout: "TCP is Disconnected." })
             break
     }
 }
