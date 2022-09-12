@@ -35,30 +35,36 @@ const onRequestListener: http.RequestListener = (
     req: http.IncomingMessage,
     res: http.ServerResponse
 ) => {
+    const exts = Object.keys(headers)
+
     // resolve as relative path
     const url = req.url?.startsWith('/') ? '.' + req.url : req.url
     logServer('Request: ' + url)
 
+    const responseIndex = () => {
+        try {
+            const rootHtml = fs.readFileSync(
+                path.resolve(
+                    __dirname,
+                    config.htdocsDirectory as string,
+                    'index.html'
+                )
+            )
+            // :(
+            res.writeHead(200, headers['.html'])
+            res.write(rootHtml)
+        } catch (e) {
+            console.error(e)
+            res.writeHead(404)
+        } finally {
+            res.end()
+        }
+    }
+
     switch (url) {
         case './':
         case './index.html':
-            try {
-                const rootHtml = fs.readFileSync(
-                    path.resolve(
-                        __dirname,
-                        config.htdocsDirectory as string,
-                        'index.html'
-                    )
-                )
-                // :(
-                res.writeHead(200, headers['.html'])
-                res.write(rootHtml)
-            } catch (e) {
-                console.error(e)
-                res.writeHead(404)
-            } finally {
-                res.end()
-            }
+            responseIndex()
             break
 
         case undefined:
@@ -67,6 +73,11 @@ const onRequestListener: http.RequestListener = (
             break
 
         default:
+            if(exts.filter(e => url.endsWith(e)).length < 1){
+                responseIndex()
+                break
+            }
+
             try {
                 const assetPath = path.resolve(
                     __dirname,
