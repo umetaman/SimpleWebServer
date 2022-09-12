@@ -164,12 +164,20 @@ function onReceiveCommand(commandObj: any){
             try {
                 const jsonStr = JSON.stringify(sendCommand.data)
                 
-                const head = new Uint8Array(4)
-                const dataView = new DataView(head.buffer)
-                dataView.setUint32(0, jsonStr.length)
+                const packetHeader = new Uint8Array(4)
+                const dataView = new DataView(packetHeader.buffer)
+                dataView.setUint32(0, jsonStr.length, true)
                 
-                client?.write(head)
-                client?.write(jsonStr)
+                client?.write(packetHeader, (error) => {
+                    if(error){
+                        console.error(`[TCP] Send::Header: ${error}`)
+                    }
+                })
+                client?.write(jsonStr, (error) => {
+                    if(error){
+                        console.error(`[TCP] Send::Body: ${error}`)
+                    }
+                })
                 console.log(jsonStr)
             }
             catch(e){

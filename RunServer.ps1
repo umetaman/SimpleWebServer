@@ -1,0 +1,1 @@
+.\node_modules\.bin\ts-node .\Server.ts --webServerPortNumber=1234 --webSocketPortNumber=5678
